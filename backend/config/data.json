@@ -4,9 +4,13 @@
     "Pin(dBm)": 0,
     "CascadeNoise": "",
     "CascadeLinearNoise": "",
-    "FiberLoss": 0.25,
-    "Margin": "",
-    "FinalOSNR": "",
+    "FiberLoss(dB)": 0.25,
+    "Margin(dB)": "",
+    "FinalOSNR(dB)": "",
+    "PlanckConstant": 6.62607,
+    "Wavelength(nm)": "",
+    "Frequency(Thz)": "",
+    "EffectiveBandwidth(nm)": 0.1,
     "Stages": [
         {
             "Stage": 1,
