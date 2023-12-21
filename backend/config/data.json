@@ -1,0 +1,29 @@
+{
+    "PorjectName": "",
+    "CreateAt": "",
+    "Pin(dBm)": 0,
+    "CascadeNoise": "",
+    "CascadeLinearNoise": "",
+    "FiberLoss": 0.25,
+    "Margin": "",
+    "FinalOSNR": "",
+    "Stages": [
+        {
+            "Stage": 1,
+            "Type": "OBA",
+            "Gain(dB)": 20,
+            "L(dB)": "",
+            "NF(dB)": 5.5,
+            "G-linear": "",
+            "L-linear": "",
+            "Delta-G*L": "",
+            "F-linear": "",
+            "Fsys-linear": "",
+            "Fsys(dB)": "",
+            "OSNR": "",
+            "DiffWithIdeal": "",
+            "Distance": "",
+            "Loss": ""
+        }
+    ]
+}
