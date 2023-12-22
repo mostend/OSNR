@@ -11,69 +11,6 @@
   <script src="./js/alpine.js" defer></script>
 </head>
 
-<style>
-  html,
-  body {
-    background: white;
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-  }
-
-  .page {
-    height: 100%;
-    width: 100%;
-    display: flex;
-  }
-
-  .public {
-    margin: 10px;
-    width: 300px;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: flex-start;
-    align-content: flex-start;
-  }
-
-  .public-item {
-    margin: 2px;
-    width: 140px;
-  }
-
-  .projectName {
-    width: 240px;
-  }
-
-  .public-item input {
-    height: 30px;
-    width: 95%;
-    text-align: center;
-  }
-
-  .public-item p {
-    margin: 1px;
-    word-wrap: break-word;
-  }
-
-  .buttonGroup input {
-    margin: 2px;
-  }
-
-  .stage {
-    width: calc(100% - 300px);
-    height: 100%;
-    overflow: hidden;
-    overflow-y: scroll;
-  }
-
-  .stage::-webkit-scrollbar {
-    display: none;
-  }
-</style>
-
 <body>
   <div class="page" x-data="Data()">
     <div class="public">
@@ -131,14 +68,113 @@
       </div>
       <div class="public-item buttonGroup">
         <input type="button" value="Save" />
-        <input type="button" value="AddStage" />
+        <input type="button" value="AddStage" x-on:click="addStage" />
         <input type="button" value="Upload" />
       </div>
     </div>
     <div class="stage">
+      <table>
+        <thead>
+          <tr>
+            <th>No.</th>
+            <th>EDFA Type</th>
+            <th>EDFA Gain</th>
+            <th>Loss Type</th>
+            <th>Span Loss (dB)</th>
+            <th>Distance (km)</th>
+            <th>NF(dB)</th>
+            <th>EDFA Input Power(dBm)</th>
+            <th>EDFA Output Power(dBm)</th>
+            <th>OSNR</th>
+            <th>SiteName</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
 
+          <template x-for="(Stage, index) in data.Stages">
+            <tr>
+              <td>
+                <p x-text="'Stage:'+Number(index+1)"></p>
+              </td>
+              <td>
+                <select x-model="Stage.EDFAType">
+                  <template x-for="(type, index) in data.EDFATypes">
+                    <option x-text="type"></option>
+                  </template>
+                </select>
+              </td>
+              <td>
+                <input type="number" min="0.00" max="40.00" step="0.1" x-model="Stage.Gain">
+              </td>
+              <td>
+                <select x-model="Stage.LossType">
+                  <template x-for="(type, index) in data.LossTypes">
+                    <option x-text="type"></option>
+                  </template>
+                </select>
+              </td>
+              <td>
+                <input type="number" min="0.00" max="50.00" step="0.1" x-model="Stage.SpanLoss">
+              </td>
+
+              <td>
+                <input type="number" x-bind:disabled="Stage.LossType!== 'Fiber'?true:false" min="0.00" max="500.00"
+                  step="0.1" x-model="Stage.Distance">
+              </td>
+
+              <td>
+                <input type="number" min="0.00" max="10.00" step="0.1" x-model="Stage.NF">
+              </td>
+
+              <td>
+                <input type="number" min="-40.00" max="30.00" step="0.1" x-model="Stage.Input">
+              </td>
+
+              <td>
+                <input type="number" min="-40.00" max="30.00" step="0.1" x-model="Stage.Output">
+              </td>
+
+              <td style="display: none;">
+                <input type="number" min="0.00" disabled max="500.00" step="0.01" x-model="Stage.G_linear">
+              </td>
+
+              <td style="display: none;">
+                <input type="number" min="0.00" disabled max="500.00" step="0.01" x-model="Stage.L_linear">
+              </td>
+
+              <td style="display: none;">
+                <input type="number" min="0.00" disabled max="500.00" step="0.1" x-model="Stage.Delta_GxL">
+              </td>
+
+              <td style="display: none;">
+                <input type="number" min="0.00" disabled max="500.00" step="0.1" x-model="Stage.F_linear">
+              </td>
+
+              <td style="display: none;">
+                <input type="number" min="0.00" disabled max="500.00" step="0.1" x-model="Stage.Fsys_linear">
+              </td>
+
+              <td style="display: none;">
+                <input type="number" min="0.00" disabled max="500.00" step="0.1" x-model="Stage.Fsys">
+              </td>
+
+              <td>
+                <input type="number" min="0.00" disabled max="500.00" step="0.1" x-model="Stage.OSNR">
+              </td>
+
+              <td>
+                <input type="text" x-model="Stage.SiteName">
+              </td>
+
+              <td>
+                <input type="button" value="Delete" x-on:click="deleteStage(Stage)" />
+              </td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
     </div>
-
 </body>
 <script>
   function Data() {
@@ -146,7 +182,6 @@
       data: {
         PorjectName: "",
         CreateAt: new Date().toLocaleString(),
-        StageName: "",
         Pin: 0.00,
         CascadeNoise: NaN,
         LinearCascadeNoise: NaN,
@@ -158,12 +193,54 @@
         Frequency: 192.1,
         EffectiveBandwidthWavelength: 0.1,
         EffectiveBandwidthFrequency: 0.0125,
-        Stages: []
+        EDFATypes: ["OBA", "OPA", "OLA", "RAMAN"],
+        LossTypes: ["Fiber", "Mux/Demux", "ROADM", "FOADM"],
+        Stages: [
+          {
+            EDFAType: "OBA",
+            Gain: 0,
+            LossType: "Fiber",
+            SpanLoss: 0,
+            Distance: 0,
+            NF: 5.0,
+            Input: 0,
+            Output: 0,
+            G_linear: 0,
+            L_linear: 0,
+            Delta_GxL: 0,
+            F_linear: 0,
+            Fsys_linear: 0,
+            Fsys: 0,
+            OSNR: 0,
+            SiteName: ""
+          }
+        ]
+      },
+      addStage() {
+        this.data.Stages.push({
+          EDFAType: "OBA",
+          Gain: 0,
+          LossType: "Fiber",
+          SpanLoss: 0,
+          Distance: 0,
+          NF: 5.0,
+          Input: 0,
+          Output: 0,
+          G_linear: 0,
+          L_linear: 0,
+          Delta_GxL: 0,
+          F_linear: 0,
+          Fsys_linear: 0,
+          Fsys: 0,
+          OSNR: 0,
+          SiteName: ""
+        })
+      },
+      deleteStage(Stage) {
+        this.data.Stages.splice(this.data.Stages.indexOf(Stage), 1)
       }
-
     }
   }
-
 
 </script>
 

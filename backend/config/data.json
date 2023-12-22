@@ -14,24 +14,22 @@
     "EffectiveBandwidth(THz)": 0.0125,
     "Stages": [
         {
-            "Type": "OBA",
-            "Gain(dB)": 16,
-            "L(dB)": "",
-            "NF(dB)": 5.5,
-            "G-linear": "",
-            "L-linear": "",
-            "Delta-G*L": "",
-            "F-linear": "",
-            "Fsys-linear": "",
-            "Fsys(dB)": "",
-            "OSNR": "",
-            "Diff-With-Ideal": "",
-            "Distance": "",
-            "LossType": "",
-            "Loss": "",
-            "Input": "",
-            "Output": "",
-            "SiteName": ""
+            EDFAType: "OBA",
+            Gain: 16,
+            LossType: "Fiber",
+            SpanLoss: 0,
+            Distance: 100,
+            NF: 8.0,
+            Input: 0,
+            Output: "",
+            G_linear: "",
+            L_linear: "",
+            Delta_GxL: "",
+            F_linear: "",
+            Fsys_linear: "",
+            Fsys: "",
+            OSNR: "",
+            SiteName: ""
         }
     ]
 }
