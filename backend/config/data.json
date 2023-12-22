@@ -3,19 +3,19 @@
     "CreateAt": "",
     "Pin(dBm)": 0,
     "CascadeNoise": "",
-    "CascadeLinearNoise": "",
-    "FiberLoss(dB)": 0.25,
-    "Margin(dB)": "",
+    "LinearCascadeNoise": "",
+    "FiberLoss(dB/km)": 0.25,
+    "MarginOSNR(dB)": "",
     "FinalOSNR(dB)": "",
     "PlanckConstant": 6.62607,
     "Wavelength(nm)": "",
     "Frequency(Thz)": "",
     "EffectiveBandwidth(nm)": 0.1,
+    "EffectiveBandwidth(THz)": 0.0125,
     "Stages": [
         {
-            "Stage": 1,
             "Type": "OBA",
-            "Gain(dB)": 20,
+            "Gain(dB)": 16,
             "L(dB)": "",
             "NF(dB)": 5.5,
             "G-linear": "",
@@ -25,9 +25,13 @@
             "Fsys-linear": "",
             "Fsys(dB)": "",
             "OSNR": "",
-            "DiffWithIdeal": "",
+            "Diff-With-Ideal": "",
             "Distance": "",
-            "Loss": ""
+            "LossType": "",
+            "Loss": "",
+            "Input": "",
+            "Output": "",
+            "SiteName": ""
         }
     ]
 }

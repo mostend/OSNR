@@ -14,14 +14,157 @@
 <style>
   html,
   body {
-    background: whitesmoke;
+    background: white;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .page {
+    height: 100%;
+    width: 100%;
+    display: flex;
+  }
+
+  .public {
+    margin: 10px;
+    width: 300px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    align-content: flex-start;
+  }
+
+  .public-item {
+    margin: 2px;
+    width: 140px;
+  }
+
+  .projectName {
+    width: 240px;
+  }
+
+  .public-item input {
+    height: 30px;
+    width: 95%;
+    text-align: center;
+  }
+
+  .public-item p {
+    margin: 1px;
+    word-wrap: break-word;
+  }
+
+  .buttonGroup input {
+    margin: 2px;
+  }
+
+  .stage {
+    width: calc(100% - 300px);
+    height: 100%;
+    overflow: hidden;
+    overflow-y: scroll;
+  }
+
+  .stage::-webkit-scrollbar {
+    display: none;
   }
 </style>
 
 <body>
-  <div>
-    hello
-  </div>
+  <div class="page" x-data="Data()">
+    <div class="public">
+      <div class="public-item projectName">
+        <p>Project Name</p>
+        <input type="text" x-model="data.PorjectName" />
+      </div>
+      <div class="public-item projectName">
+        <p>Create Time</p>
+        <input type="text" disabled x-model="data.CreateAt" />
+      </div>
+      <div class="public-item">
+        <p>Input Power(dBm)</p>
+        <input type="number" min="-40.00" max="40.00" step="0.01" x-model="data.Pin" />
+      </div>
+      <div class=" public-item">
+        <p>Cascade Noise(dB)</p>
+        <input type="number" disabled x-model="data.CascadeNoise" />
+      </div>
+      <div class="public-item">
+        <p>Linear Cascade Noise</p>
+        <input type="number" disabled x-model="data.LinearCascadeNoise" />
+      </div>
+      <div class="public-item">
+        <p>Fiber Loss (dB/km)</p>
+        <input type="number" min="0.00" max="10.00" step="0.01" x-model="data.FiberLoss" />
+      </div>
+      <div class="public-item">
+        <p>Planck Constant</p>
+        <input type="number" disabled x-model="data.PlanckConstant" />
+      </div>
+      <div class="public-item">
+        <p>Wavelength(nm)</p>
+        <input type="number" step="0.01" x-model="data.Wavelength" />
+      </div>
+      <div class="public-item">
+        <p>Channel Frequency(Thz)</p>
+        <input type="number" step="0.1" x-model="data.Frequency" />
+      </div>
+      <div class="public-item">
+        <p>Effective Bandwidth(nm)</p>
+        <input type="number" min="0.0" step="0.1" x-model="data.EffectiveBandwidthWavelength" />
+      </div>
+      <div class="public-item">
+        <p>Effective Bandwidth(THz)</p>
+        <input type="number" min="0.0" step="0.0001" x-model="data.EffectiveBandwidthFrequency" />
+      </div>
+      <div class="public-item">
+        <p>Margin OSNR (dB)</p>
+        <input type="number" min="0.0" step="0.1" x-model="data.MarginOSNR" />
+      </div>
+      <div class="public-item">
+        <p>Final OSNR(dB)</p>
+        <input type="number" disabled x-model="data.FinalOSNR" />
+      </div>
+      <div class="public-item buttonGroup">
+        <input type="button" value="Save" />
+        <input type="button" value="AddStage" />
+        <input type="button" value="Upload" />
+      </div>
+    </div>
+    <div class="stage">
+
+    </div>
+
 </body>
+<script>
+  function Data() {
+    return {
+      data: {
+        PorjectName: "",
+        CreateAt: new Date().toLocaleString(),
+        StageName: "",
+        Pin: 0.00,
+        CascadeNoise: NaN,
+        LinearCascadeNoise: NaN,
+        FiberLoss: 0.25,
+        MarginOSNR: 3.0,
+        FinalOSNR: NaN,
+        PlanckConstant: 6.62607015,
+        Wavelength: 1550.61,
+        Frequency: 192.1,
+        EffectiveBandwidthWavelength: 0.1,
+        EffectiveBandwidthFrequency: 0.0125,
+        Stages: []
+      }
+
+    }
+  }
+
+
+</script>
 
 </html>
