@@ -40,10 +40,6 @@ func main() {
 		dialog.Show()
 	})
 
-	app.Events.On("saveFile", func(e *application.WailsEvent) {
-
-	})
-
 	err := app.Run()
 	if err != nil {
 		log.Fatal(err)
