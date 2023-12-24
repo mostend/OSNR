@@ -3,7 +3,7 @@ Multi-Segment OSNR calculation program
 
 Thanks wails. 
 # build
-wails3 tassk build
+wails3 task build
 
 # Interface
 
