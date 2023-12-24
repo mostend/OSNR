@@ -5,6 +5,7 @@ Thanks wails.
 # build
 wails3 tassk build
 
+# Interface
 
 ![image](https://github.com/mostend/OSNR/assets/11625729/b658b8a3-4af2-4509-b09a-953535c0c57a)
 
