@@ -16,10 +16,11 @@ html,
   .public {
     margin: 10px;
     width: 300px;
+    height: calc(100% - 20px);
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: flex-start;
     align-content: flex-start;
   }
@@ -47,17 +48,25 @@ html,
   .buttonGroup input {
     margin: 2px;
   }
-
+  .upload{
+    width: 300px;
+  }
+  .chartItem{
+    width: 300px;
+    height: calc(100% - 720px) ;
+  }
+  #chart{
+    width: 300px;
+    height: 100%;
+  }
   .stage {
     width: calc(100% - 300px);
     height: 100%;
-    overflow: hidden;
+    overflow: scroll;
     overflow-y: scroll;
+    overflow-x: scroll;
   }
 
-  .stage::-webkit-scrollbar {
-    display: none;
-  }
   .stage-item{
     display: flex;
     flex-wrap: wrap;
@@ -78,14 +87,15 @@ html,
   border-collapse: collapse;
   width: 100%;
   margin: auto;
+  margin-top: 10px;
   font-size: 14px;
   text-align: center;
 }
 
 th, td {
   border: 1px solid #ddd;
-  padding: 5px;
-  width: 80px;
+  padding: 2px;
+  width: 60px;
   text-align: center;
 }
 
@@ -95,6 +105,10 @@ th {
   font-weight: bold;
   letter-spacing: 1px;
   text-align: center;
+}
+
+table p{
+  margin: 0px;
 }
 
 tr:nth-child(even) {
@@ -108,10 +122,14 @@ tr:hover {
 
 table input {
     text-align: center;
-    height: 30px;
+    height: 20px;
+}
+
+table input[type="text"] {
+    width: 100px;
 }
 
 table select{
     text-align: center;
-    height: 35px;
+    height: 25px;
 }

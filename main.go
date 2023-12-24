@@ -22,20 +22,29 @@ func main() {
 		},
 	})
 	// Create window
-	app.NewWebviewWindowWithOptions(application.WebviewWindowOptions{
+	mainWindow := app.NewWebviewWindowWithOptions(application.WebviewWindowOptions{
 		Title: "OSNR",
-		CSS:   `body { background-color: rgba(255, 255, 255, 0); } .main { color: white; margin: 20%; }`,
 		Mac: application.MacWindow{
 			InvisibleTitleBarHeight: 50,
 			Backdrop:                application.MacBackdropTranslucent,
 			TitleBar:                application.MacTitleBarHiddenInset,
 		},
-
 		URL: "/",
+	})
+	mainWindow.Maximise()
+
+	app.Events.On("errMessage", func(e *application.WailsEvent) {
+		dialog := application.ErrorDialog()
+		dialog.SetTitle("Error")
+		dialog.SetMessage(e.Data.(string))
+		dialog.Show()
+	})
+
+	app.Events.On("saveFile", func(e *application.WailsEvent) {
+
 	})
 
 	err := app.Run()
-
 	if err != nil {
 		log.Fatal(err)
 	}

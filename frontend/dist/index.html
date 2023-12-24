@@ -4,11 +4,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="./favicon.ico" type="image/x-icon">
+  <link rel="shortcut icon" href="./favicon.ico" type="image/x-icon">
   <script src="/wails/ipc.js"></script>
   <script src="/wails/runtime.js"></script>
   <title>OSNR</title>
   <link rel="stylesheet" href="./css/style.css">
   <script src="./js/alpine.js" defer></script>
+  <script src="./js/decimal.js"></script>
+  <script src="./js/chart.min.js"></script>
 </head>
 
 <body>
@@ -24,7 +28,7 @@
       </div>
       <div class="public-item">
         <p>Input Power(dBm)</p>
-        <input type="number" min="-40.00" max="40.00" step="0.01" x-model="data.Pin" />
+        <input type="number" min="-40.00" max="40.00" step="0.01" x-model="data.Pin" x-on:input="changeInput" />
       </div>
       <div class=" public-item">
         <p>Cascade Noise(dB)</p>
@@ -44,32 +48,47 @@
       </div>
       <div class="public-item">
         <p>Wavelength(nm)</p>
-        <input type="number" step="0.01" x-model="data.Wavelength" />
+        <input type="number" step="0.001" x-model="data.Wavelength" x-on:input="changeWavelength" />
       </div>
       <div class="public-item">
         <p>Channel Frequency(Thz)</p>
-        <input type="number" step="0.1" x-model="data.Frequency" />
+        <input type="number" step="0.05" x-model="data.Frequency" x-on:input="changeFrequency" />
       </div>
       <div class="public-item">
         <p>Effective Bandwidth(nm)</p>
-        <input type="number" min="0.0" step="0.1" x-model="data.EffectiveBandwidthWavelength" />
+        <input type="number" min="0.0" step="0.1" disabled x-model="data.EffectiveBandwidthWavelength" />
       </div>
       <div class="public-item">
         <p>Effective Bandwidth(THz)</p>
-        <input type="number" min="0.0" step="0.0001" x-model="data.EffectiveBandwidthFrequency" />
+        <input type="number" min="0.0" step="0.0001" disabled x-model="data.EffectiveBandwidthFrequency" />
       </div>
       <div class="public-item">
         <p>Margin OSNR (dB)</p>
-        <input type="number" min="0.0" step="0.1" x-model="data.MarginOSNR" />
+        <input type="number" min="0.0" step="0.1" x-model="data.MarginOSNR" x-on:input="changeMarginOSNR"
+          style="color: red; font-size: 20px;" />
       </div>
       <div class="public-item">
-        <p>Final OSNR(dB)</p>
-        <input type="number" disabled x-model="data.FinalOSNR" />
+        <p>Total Distance (km)</p>
+        <input type="number" disabled x-model="data.TotalDistance" />
+      </div>
+      <div class="public-item">
+        <p>Final OSNR<br /> (dB)</p>
+        <input type="number" disabled x-model="data.FinalOSNR" style="color: red; font-size: 20px;" />
       </div>
       <div class="public-item buttonGroup">
-        <input type="button" value="Save" />
+        <input type="button" value="Save" x-on:click="save" />
+      </div>
+      <div class="public-item buttonGroup">
         <input type="button" value="AddStage" x-on:click="addStage" />
-        <input type="button" value="Upload" />
+      </div>
+      <div class="public-item buttonGroup upload">
+        <input x-ref="file" type="file" accept="application/json" x-on:change="changeFile($event.target.files)"
+          style="display: none;" />
+        <input type="button" value="Upload" x-on:click="upload" />
+        <span x-ref="fileName"></span>
+      </div>
+      <div class="public-item buttonGroup upload">
+        <input type="button" value="Show OSNR Chart" x-on:click="showOSNRChart" />
       </div>
     </div>
     <div class="stage">
@@ -90,8 +109,7 @@
             <th></th>
           </tr>
         </thead>
-        <tbody>
-
+        <tbody x-init="$watch('data.Stages', (value, oldValue) => watchStages(value,oldValue))">
           <template x-for="(Stage, index) in data.Stages">
             <tr>
               <td>
@@ -100,39 +118,40 @@
               <td>
                 <select x-model="Stage.EDFAType">
                   <template x-for="(type, index) in data.EDFATypes">
-                    <option x-text="type"></option>
+                    <option x-text="type" x-bind:selected="type==Stage.EDFAType"></option>
                   </template>
                 </select>
               </td>
               <td>
-                <input type="number" min="0.00" max="40.00" step="0.1" x-model="Stage.Gain">
+                <input type="number" name="gain" min="0.00" max="40.00" step="0.01" x-model="Stage.Gain" />
               </td>
               <td>
                 <select x-model="Stage.LossType">
                   <template x-for="(type, index) in data.LossTypes">
-                    <option x-text="type"></option>
+                    <option x-text="type" x-bind:selected="type==Stage.LossType"></option>
                   </template>
                 </select>
               </td>
               <td>
-                <input type="number" min="0.00" max="50.00" step="0.1" x-model="Stage.SpanLoss">
+                <input type="number" min="0.00" max="50.00" step="0.01" x-model="Stage.SpanLoss"
+                  x-on:input="changeSpanLoss(Stage,index)" />
               </td>
 
               <td>
-                <input type="number" x-bind:disabled="Stage.LossType!== 'Fiber'?true:false" min="0.00" max="500.00"
-                  step="0.1" x-model="Stage.Distance">
+                <input type="number" x-bind:disabled="isFiberLoss(Stage,index)" min="0.00" max="500.00" step="0.1"
+                  x-model="Stage.Distance" x-on:input="changeDistance(Stage,index)" />
               </td>
 
               <td>
-                <input type="number" min="0.00" max="10.00" step="0.1" x-model="Stage.NF">
+                <input type="number" min="0.00" max="10.00" step="0.01" x-model="Stage.NF">
               </td>
 
               <td>
-                <input type="number" min="-40.00" max="30.00" step="0.1" x-model="Stage.Input">
+                <input type="number" min="-40.00" max="30.00" step="0.01" x-model="Stage.Input">
               </td>
 
               <td>
-                <input type="number" min="-40.00" max="30.00" step="0.1" x-model="Stage.Output">
+                <input type="number" disabled min="-40.00" max="30.00" step="0.01" x-model="Stage.Output">
               </td>
 
               <td style="display: none;">
@@ -160,7 +179,8 @@
               </td>
 
               <td>
-                <input type="number" min="0.00" disabled max="500.00" step="0.1" x-model="Stage.OSNR">
+                <input type="number" min="0.00" disabled max="500.00" step="0.1" x-model="Stage.OSNR"
+                  style="color: red; font-size: 20px;">
               </td>
 
               <td>
@@ -168,41 +188,50 @@
               </td>
 
               <td>
-                <input type="button" value="Delete" x-on:click="deleteStage(Stage)" />
+                <input type="button" value="X" x-on:click="deleteStage(Stage)" />
               </td>
             </tr>
           </template>
         </tbody>
       </table>
     </div>
+
+    <dialog x-ref="dialog" style="width: 800px;height: 640px">
+      <div id="chart" style="width: 800px;height: 600px"></div>
+      <div style="margin: 0 auto;width: 200px;">
+        <input type="button" style="width: 100%;height: 40px;" value="Close" x-on:click="closeDialog">
+      </div>
+    </dialog>
 </body>
+<script src="./js/calculate.js"></script>
 <script>
   function Data() {
     return {
       data: {
         PorjectName: "",
-        CreateAt: new Date().toLocaleString(),
+        CreateAt: formaData(),
         Pin: 0.00,
-        CascadeNoise: NaN,
-        LinearCascadeNoise: NaN,
+        CascadeNoise: 0,
+        LinearCascadeNoise: 0,
         FiberLoss: 0.25,
-        MarginOSNR: 3.0,
-        FinalOSNR: NaN,
+        MarginOSNR: 0.0,
+        FinalOSNR: 0,
         PlanckConstant: 6.62607015,
-        Wavelength: 1550.61,
-        Frequency: 192.1,
+        Wavelength: 1560.606,
+        Frequency: 192.10,
         EffectiveBandwidthWavelength: 0.1,
         EffectiveBandwidthFrequency: 0.0125,
+        TotalDistance: 0,
         EDFATypes: ["OBA", "OPA", "OLA", "RAMAN"],
         LossTypes: ["Fiber", "Mux/Demux", "ROADM", "FOADM"],
         Stages: [
           {
             EDFAType: "OBA",
-            Gain: 0,
+            Gain: 15,
             LossType: "Fiber",
-            SpanLoss: 0,
+            SpanLoss: 15,
             Distance: 0,
-            NF: 5.0,
+            NF: 6.5,
             Input: 0,
             Output: 0,
             G_linear: 0,
@@ -219,11 +248,11 @@
       addStage() {
         this.data.Stages.push({
           EDFAType: "OBA",
-          Gain: 0,
+          Gain: 15,
           LossType: "Fiber",
-          SpanLoss: 0,
+          SpanLoss: 15,
           Distance: 0,
-          NF: 5.0,
+          NF: 6.5,
           Input: 0,
           Output: 0,
           G_linear: 0,
@@ -236,12 +265,119 @@
           SiteName: ""
         })
       },
+      save() {
+        if (this.data.PorjectName.trim() === "") {
+          wails.Events.Emit({ name: 'errMessage', data: 'Please type Project Name!' })
+          return
+        }
+        downloadJson(`${this.data.PorjectName}_${this.data.CreateAt}.json`, this.data)
+      },
+      upload() {
+        this.$refs.file.click()
+      },
+      showOSNRChart() {
+        if (this.data.PorjectName.trim() === "") {
+          wails.Events.Emit({ name: 'errMessage', data: 'Please type Project Name!' })
+          return
+        }
+        if (typeof this.$refs.dialog.showModal === "function") {
+          this.$refs.dialog.showModal();
+          let x = Object.keys(Array.from({ length: this.data.Stages.length })).map((val, i) => +i + 1)
+          x[x.length] = "final"
+          let y = this.data.Stages.map(x => x.OSNR)
+          y[y.length] = this.data.FinalOSNR
+          echart(y, x, `${this.data.PorjectName}_${this.data.CreateAt}`)
+        }
+      },
+      closeDialog() {
+        if (typeof this.$refs.dialog.showModal === "function") {
+          this.$refs.dialog.close();
+        }
+      },
+      async changeFile(file) {
+        if (file[0] == undefined) {
+          wails.Events.Emit({ name: 'errMessage', data: 'Please select File!' })
+        } else {
+          this.$refs.fileName.innerText = file[0].name
+          let fileContent = await file[0].text()
+          this.data = JSON.parse(fileContent)
+        }
+      },
       deleteStage(Stage) {
         this.data.Stages.splice(this.data.Stages.indexOf(Stage), 1)
+        if (this.data.Stages.length === 0) {
+          this.data.LinearCascadeNoise = 0
+          this.data.CascadeNoise = 0
+          this.data.FinalOSNR = 0
+          this.data.TotalDistance = 0
+        }
+      },
+      isFiberLoss(Stage, index) {
+        if (Stage.LossType !== 'Fiber') {
+          Stage.Distance = parseFloat(0);
+          return true
+        }
+        Stage.Distance = parseFloat(new Decimal(Stage.SpanLoss / this.data.FiberLoss));
+        return false
+      },
+      changeInput() {
+        if (this.data.Stages[0]) {
+          this.data.Stages[0].Input = this.data.Pin
+        } else {
+          this.addStage()
+          this.data.Stages[0].Input = this.data.Pin
+        }
+      },
+      changeWavelength() {
+        let opticalSpeed = new Decimal(2.99792458).times(new Decimal(10).pow(new Decimal(17)))
+        this.data.Frequency = parseFloat(opticalSpeed.div(new Decimal(this.data.Wavelength)).div(new Decimal(10).pow(new Decimal(12)))).toFixed(2)
+        this.watchStages(this.data.Stages, this.data.Stages)
+      },
+      changeFrequency() {
+        let opticalSpeed = new Decimal(2.99792458).times(new Decimal(10).pow(new Decimal(17)))
+        this.data.Wavelength = parseFloat(opticalSpeed.div(new Decimal(this.data.Frequency)).div(new Decimal(10).pow(new Decimal(12)))).toFixed(3)
+        this.watchStages(this.data.Stages, this.data.Stages)
+      },
+      changeMarginOSNR() {
+        this.watchStages(this.data.Stages, this.data.Stages)
+      },
+      calculate58() {
+        let const58 = new Decimal(10) * Decimal.log10(
+          new Decimal(this.data.PlanckConstant)
+            .times(new Decimal(this.data.Frequency))
+            .times(new Decimal(this.data.EffectiveBandwidthFrequency))
+            .times(new Decimal(10).pow(new Decimal(12 + 12 - 31)))
+        )
+        return parseFloat(const58.toString())
+      },
+      changeSpanLoss(Stage, index) {
+        if (Stage.LossType === "Fiber") {
+          Stage.Distance = parseFloat(new Decimal(Stage.SpanLoss / this.data.FiberLoss));
+        }
+      },
+      changeDistance(Stage, index) {
+        Stage.SpanLoss = parseFloat(new Decimal(Stage.Distance * this.data.FiberLoss));
+      },
+      watchStages(newStages, oldStages) {
+        let const58 = this.calculate58()
+        let finalStages = watchStages(newStages, oldStages, this.data.Pin, const58)
+        if (finalStages.length > 0) {
+          this.data.FinalOSNR = parseFloat(finalStages[finalStages.length - 1].OSNR - this.data.MarginOSNR).toFixed(2)
+        }
+        this.data.LinearCascadeNoise = calculateTotalLinearCascadeNoise(finalStages)
+        this.data.CascadeNoise = calculateTotalCascadeNoise(finalStages)
+        this.data.TotalDistance = calculateTotalDistace(finalStages)
+
+        let x = Object.keys(Array.from({ length: this.data.Stages.length })).map((val, i) => +i + 1)
+        x[x.length] = "final"
+        let y = this.data.Stages.map(x => x.OSNR)
+        y[y.length] = this.data.FinalOSNR
+        echart(y, x, `${this.data.PorjectName}_${this.data.CreateAt}`)
       }
     }
   }
 
 </script>
+
 
 </html>
