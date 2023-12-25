@@ -49,4 +49,4 @@ require (
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 )
 
-replace github.com/wailsapp/wails/v3 => C:\Users\w3767\Desktop\wails\v3
+replace github.com/wailsapp/wails/v3 => C:\Users\Mostend\Desktop\wails\v3

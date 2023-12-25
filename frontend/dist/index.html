@@ -317,7 +317,7 @@
           Stage.Distance = parseFloat(0);
           return true
         }
-        Stage.Distance = parseFloat(new Decimal(Stage.SpanLoss / this.data.FiberLoss));
+        Stage.Distance = parseFloat(new Decimal(Stage.SpanLoss / this.data.FiberLoss)).toFixed(2);
         return false
       },
       changeInput() {
