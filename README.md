@@ -2,6 +2,11 @@
 Multi-Segment OSNR calculation program
 
 Thanks wails. 
+
+## Download
+[windows]
+https://github.com/mostend/OSNR/releases
+
 # build
 wails3 task build
 
