@@ -28,7 +28,7 @@
       </div>
       <div class="public-item">
         <p>Input Power(dBm)</p>
-        <input type="number" min="-40.00" max="40.00" step="0.01" x-model="data.Pin" x-on:input="changeInput" />
+        <input type="number" min="-40.00" max="40.00" step="0.01" x-model="data.Pin" x-on:change="changeInput" />
       </div>
       <div class=" public-item">
         <p>Cascade Noise(dB)</p>
@@ -48,11 +48,11 @@
       </div>
       <div class="public-item">
         <p>Wavelength(nm)</p>
-        <input type="number" step="0.001" x-model="data.Wavelength" x-on:input="changeWavelength" />
+        <input type="number" step="0.001" x-model="data.Wavelength" x-on:change="changeWavelength" />
       </div>
       <div class="public-item">
         <p>Channel Frequency(Thz)</p>
-        <input type="number" step="0.05" x-model="data.Frequency" x-on:input="changeFrequency" />
+        <input type="number" step="0.05" x-model="data.Frequency" x-on:change="changeFrequency" />
       </div>
       <div class="public-item">
         <p>Effective Bandwidth(nm)</p>
@@ -64,7 +64,7 @@
       </div>
       <div class="public-item">
         <p>Margin OSNR (dB)</p>
-        <input type="number" min="0.0" step="0.1" x-model="data.MarginOSNR" x-on:input="changeMarginOSNR"
+        <input type="number" min="0.0" step="0.1" x-model="data.MarginOSNR" x-on:change="changeMarginOSNR"
           style="color: red; font-size: 20px;" />
       </div>
       <div class="public-item">
@@ -134,12 +134,12 @@
               </td>
               <td>
                 <input type="number" min="0.00" max="50.00" step="0.01" x-model="Stage.SpanLoss"
-                  x-on:input="changeSpanLoss(Stage,index)" />
+                  x-on:change="changeSpanLoss(Stage,index)" />
               </td>
 
               <td>
                 <input type="number" x-bind:disabled="isFiberLoss(Stage,index)" min="0.00" max="500.00" step="0.1"
-                  x-model="Stage.Distance" x-on:input="changeDistance(Stage,index)" />
+                  x-model="Stage.Distance" x-on:change="changeDistance(Stage,index)" />
               </td>
 
               <td>
