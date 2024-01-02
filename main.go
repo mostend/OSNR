@@ -11,12 +11,14 @@ import (
 var assets embed.FS
 
 func main() {
+	icon, _ := assets.ReadFile("./favicon.ico")
 	app := application.New(application.Options{
 		Name:        "OSNR",
 		Description: "Multi-Segment OSNR calculation program",
 		Assets: application.AssetOptions{
 			FS: assets,
 		},
+		Icon: icon,
 		Mac: application.MacOptions{
 			ApplicationShouldTerminateAfterLastWindowClosed: true,
 		},
