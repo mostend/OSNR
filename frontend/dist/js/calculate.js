@@ -107,7 +107,7 @@ function downloadJson(fileName, json) {
     saveLink.click();
 }
 
-function formaData() {
+function formatDate() {
     timer = new Date()
     const year = timer.getFullYear()
     const month = timer.getMonth() + 1

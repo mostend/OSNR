@@ -209,7 +209,7 @@
     return {
       data: {
         PorjectName: "",
-        CreateAt: formaData(),
+        CreateAt: formatDate(),
         Pin: 0.00,
         CascadeNoise: 0,
         LinearCascadeNoise: 0,
@@ -301,6 +301,7 @@
           this.$refs.fileName.innerText = file[0].name
           let fileContent = await file[0].text()
           this.data = JSON.parse(fileContent)
+          this.data.CreateAt = formatDate()
         }
       },
       deleteStage(Stage) {
