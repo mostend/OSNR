@@ -1,0 +1,15 @@
+{
+	"fixed": {
+		"file_version": "0.0.1"
+	},
+	"info": {
+		"0000": {
+			"ProductVersion": "0.0.1",
+			"CompanyName": "OSNR",
+			"FileDescription": "An OSNR calculation program",
+			"LegalCopyright": "© now, OSNR",
+			"ProductName": "OSNR",
+			"Comments": "An OSNR calculation program"
+		}
+	}
+}

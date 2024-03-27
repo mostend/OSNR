@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSNR</title>
+    <link rel="stylesheet" href="./css/uikit-rtl.min.css">
+    <link rel="stylesheet" href="./css/uikit.min.css">
+    <script src="./js/uikit-icons.min.js"></script>
+    <script src="./js/uikit.min.js"></script>
+    <script src="./js/alpine.js" defer></script>
+    <script src="./js/math.min.js"></script>
+    <script src="./js/chart.min.js"></script>
+    <script src="./js/calculate.js"></script>
+</head>
+
+<style>
+    html,
+    body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        width: 100%;
+    }
+
+    .margin-auto {
+        margin: 0 auto;
+    }
+
+    .padding-10 {
+        padding: 5px;
+    }
+
+    .padding-lr5 {
+        padding-left: 5px;
+        padding-right: 5px;
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
+
+    ::-webkit-scrollbar {
+        display: none;
+    }
+
+    .scroll {
+        overflow: hidden;
+        overflow-y: scroll;
+    }
+
+    .border {
+        border-bottom: 1px solid #a5a0a0;
+    }
+
+    input {
+        text-align: center;
+    }
+</style>
+
+<body>
+    <div class="uk-grid-collapse uk-child-width-expand@s uk-height-1-1" uk-grid x-data="Data()">
+        <div class="uk-card uk-card-default uk-card-hover uk-width-1-4@m uk-height-1-1 scroll"
+            x-init="$watch('data.UserInput', (newUserInput, oldUserInput) => WatchUserInput(newUserInput, oldUserInput))">
+            <div class="uk-width-1-1 margin-auto " uk-grid>
+                <div class="uk-width-1-1 margin-auto padding-10 ">
+                    <span>Project Name</span>
+                    <input class="uk-input uk-form-small" type="text" x-model="data.ProjectName">
+                </div>
+                <div class="uk-width-1-2@s padding-10" style="margin-top: 0;">
+                    <span>Create Time</span>
+                    <input class="uk-input uk-form-small" type="text" disabled x-model="data.CreateTime">
+                </div>
+                <div class="uk-width-1-2@s padding-10" style="margin-top: 0;">
+                    <span>Input Power(dBm)</span>
+                    <input class="uk-input uk-form-small uk-form-success" type="number" step="0.01" min="-40" max="40"
+                        x-model="data.UserInput.InputPower" x-on:change="ChangeInputPower">
+                </div>
+                <div class="uk-width-1-2@s padding-10" style="margin-top: 0;">
+                    <span>Final OSNR</span>
+                    <input class="uk-input uk-form-small" type="number" disabled style="font-size: 20px; color: red;"
+                        x-model="data.FinalOSNR">
+                </div>
+                <div class="uk-width-1-2@s padding-10" style="margin-top: 0;">
+                    <span>Margin OSNR(dB)</span>
+                    <input class="uk-input uk-form-small uk-form-danger" type="number" step="0.1" min="0" max="10"
+                        x-model="data.UserInput.MarginOSNR" x-on:change="ChangeMarginOSNR">
+                </div>
+                <div class="uk-width-1-2@s padding-10" style="margin-top: 0;">
+                    <span>MUX/DEMUX channels</span>
+                    <input class="uk-input uk-form-small uk-form-success" type="number" min="1" step="1" max="96"
+                        x-model="data.UserInput.MuxDemuxChannels">
+                </div>
+                <div class="uk-width-1-2@s padding-10" style="margin-top: 0;">
+                    <span>MUX/DEMUX Loss</span>
+                    <input class="uk-input uk-form-small uk-form-danger" type="number" min="0" max="10" step="0.1"
+                        x-model="data.UserInput.MuxDemuxLoss" x-on:change="ChangeMuxDemuxLoss">
+                </div>
+                <div class="uk-width-1-2@s padding-10" style="margin-top: 0;">
+                    <span>Single wavelength output power(dBm)</span>
+                    <input class="uk-input uk-form-small" type="number" disabled min="-40" step="0.01" max="40"
+                        x-model="data.SingleWavelebgthOutputPower">
+                </div>
+                <div class="uk-width-1-2@s padding-10" style="margin-top: 0;">
+                    <span>Multi wavelength output power(dBm)</span>
+                    <input class="uk-input uk-form-small" type="number" disabled min="-40" step="0.01" max="40"
+                        x-model="data.MultiWavelebgthOutputPower">
+                </div>
+                <div class="uk-width-1-2@s padding-10" style="margin-top: 0;">
+                    <span>Fiber Loss(dB/km)</span>
+                    <input class="uk-input uk-form-small uk-form-danger" type="number" min="0" step="0.01" max="10"
+                        x-model="data.UserInput.FiberLoss" x-on:change="ChangeFiberLoss">
+                </div>
+                <div class="uk-width-1-2@s padding-10" style="margin-top: 0;">
+                    <span>Total Distance(km)</span>
+                    <input class="uk-input uk-form-small" type="number" disabled min="0" step="0.01"
+                        x-model="data.TotalDistance">
+                </div>
+                <div class="uk-width-1-2@s padding-10" style="margin-top: 0;">
+                    <span>Wavelength(nm)</span>
+                    <input class="uk-input uk-form-small" type="number" min="1528" step="0.001" max="1568"
+                        x-model="data.UserInput.Wavelength" x-on:change="ChangeWavelength">
+                </div>
+                <div class="uk-width-1-2@s padding-10" style="margin-top: 0;">
+                    <span>Channel Frequency(Thz)</span>
+                    <input class="uk-input uk-form-small" type="number" min="191.30" step="0.05" max="196.05"
+                        x-model="data.UserInput.ChannelFrequency" x-on:change="ChangeFrequency">
+                </div>
+                <div class="uk-width-1-2@s padding-10" style="margin-top: 0;">
+                    <span>Effective Bandwidth(nm)</span>
+                    <input class="uk-input uk-form-small" type="number" disabled x-model="data.EffectiveBandwidth">
+                </div>
+                <div class="uk-width-1-2@s padding-10" style="margin-top: 0;">
+                    <span>Planck Constant</span>
+                    <input class="uk-input uk-form-small" type="number" disabled x-model="data.PlanckConstant">
+                </div>
+                <div class="uk-width-1-2@s padding-10" style="margin-top: 0;">
+                    <span>Cascade Noise(dB)</span>
+                    <input class="uk-input uk-form-small" type="number" disabled x-model="data.CascadeNoise">
+                </div>
+                <div class="uk-width-1-2@s padding-10" style="margin-top: 0;">
+                    <span>Linear Cascade Noise</span>
+                    <input class="uk-input uk-form-small" type="number" disabled x-model="data.LinearCascadeNoise">
+                </div>
+                <div class="uk-width-1-2@s padding-10" style="margin-top: 0;">
+                    <button class="uk-button uk-button-primary uk-width-1-1 uk-margin-small-bottom"
+                        x-on:click="Save">Save</button>
+                </div>
+                <div class="uk-width-1-2@s padding-10" style="margin-top: 0;">
+                    <button class="uk-button uk-button-primary uk-width-1-1 uk-margin-small-bottom"
+                        x-on:click="AddStage">Add Stage</button>
+                </div>
+                <div class="uk-width-1-2@s padding-10" style="margin-top: 0;">
+                    <input x-ref="file" type="file" accept="application/json"
+                        x-on:change="SelectFile($event.target.files)" style="display: none;" />
+                    <button class="uk-button uk-button-primary uk-width-1-1 uk-margin-small-bottom"
+                        x-on:click="Upload">Upload</button>
+                </div>
+                <div class="uk-width-1-2@s padding-10" style="margin-top: 0;">
+                    <a class="uk-button uk-button-primary uk-width-1-1 uk-margin-small-bottom"
+                        x-on:click="ShowOSNR">OSNR Chart</a>
+                    <div id="modal" class="uk-flex-top" uk-modal>
+                        <div class="uk-modal-dialog uk-modal-body uk-margin-auto-vertical">
+                            <button class="uk-modal-close-default" type="button" uk-close></button>
+                            <div id="chart" style="width: 500px;height: 500px"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="uk-width-1-1@s padding-10" style="margin-top: 0;margin-bottom: 5px;">
+                    <p x-text="'FileName : '+data.FilePath"></p>
+                </div>
+            </div>
+        </div>
+        <div class="uk-width-expand@m uk-card uk-card-default uk-card-hover uk-height-1-1 scroll"
+            x-init="$watch('data.Stages', (newStages, oleStages) => WatchStages(newStages, oleStages))">
+            <div class=" uk-grid-small uk-child-width-expand@s uk-text-center border" uk-grid>
+                <div class="padding-lr5">No.</div>
+                <div class="padding-lr5">Input Power(dBm)</div>
+                <div class="padding-lr5">EDFA Type</div>
+                <div class="padding-lr5">EDFA Gain(dB)</div>
+                <div class="padding-lr5">Loss Type</div>
+                <div class="padding-lr5">Span Loss(dB)</div>
+                <div class="padding-lr5">Distance(km)</div>
+                <div class="padding-lr5">NF(dB)</div>
+                <div class="padding-lr5">Output Power(dBm)</div>
+                <div class="padding-lr5">OSNR</div>
+                <div class="padding-lr5">SiteName</div>
+                <div class="padding-lr5">Operation</div>
+            </div>
+            <template x-for="(Stage, index) in data.Stages" :key="index">
+                <div class="uk-grid-small uk-child-width-expand@s uk-text-center border" style="margin-top: 0;" uk-grid>
+                    <div class="padding-lr5" x-text="`Stage:`+Number(index+1)"></div>
+                    <div class="padding-lr5">
+                        <input class="uk-input uk-form-width-medium uk-form-small" type="number" disabled
+                            x-model="Stage.Input">
+                    </div>
+                    <div class="padding-lr5">
+                        <div class="padding-lr5" uk-dropnav>
+                            <a x-html="Stage.EDFAType+`<span uk-drop-parent-icon></span>`"></a>
+                            <div class="uk-dropdown" uk-dropdown="pos: bottom-center;mode:click;">
+                                <ul class="uk-nav uk-dropdown-nav">
+                                    <template x-for="(EDFAType, EDFAIndex) in data.EDFATypes" :key="EDFAIndex">
+                                        <li>
+                                            <button
+                                                class="uk-button uk-button-primary uk-width-1-1 uk-margin-small-bottom"
+                                                x-text="EDFAType.type"
+                                                x-on:click="SelectEDFAType(EDFAType,Stage,$el)"></button>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="padding-lr5">
+                        <input class="uk-input uk-form-width-medium uk-form-success uk-form-small" type="number" min="0"
+                            step="0.01" max="40" x-model="Stage.Gain">
+                    </div>
+                    <div class="padding-lr5">
+                        <div class="padding-lr5" uk-dropnav>
+                            <a x-html="Stage.LossType+`<span uk-drop-parent-icon></span>`"></a>
+                            <div class="uk-dropdown" uk-dropdown="pos: bottom-center;mode:click;">
+                                <ul class="uk-nav uk-dropdown-nav">
+                                    <template x-for="(LossType, index) in data.LossTypes" :key="index">
+                                        <li>
+                                            <button
+                                                class="uk-button uk-button-primary uk-width-1-1 uk-margin-small-bottom"
+                                                x-text="LossType"
+                                                x-on:click="SelectLossType(LossType,Stage,$el)"></button>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="padding-lr5">
+                        <input class="uk-input uk-form-width-medium uk-form-danger uk-form-small" type="number" min="0"
+                            step="0.01" max="60" x-model="Stage.SpanLoss" x-on:change="ChangeSpanLoss(Stage,index)">
+                    </div>
+                    <div class="padding-lr5">
+                        <input class="uk-input uk-form-width-medium uk-form-danger uk-form-small" type="number" min="0"
+                            step="0.01" max="300" x-model="Stage.Distance" x-bind:disabled="IsFiberLoss(Stage,index)"
+                            x-on:change="ChangeDistance(Stage,index)">
+                    </div>
+                    <div class="padding-lr5">
+                        <input class="uk-input uk-form-width-medium uk-form-danger uk-form-small" type="number" min="0"
+                            step="0.01" max="15" x-model="Stage.NF">
+                    </div>
+                    <div class="padding-lr5">
+                        <input class="uk-input uk-form-width-medium uk-form-small" type="number" disabled
+                            x-model="Stage.Output">
+                    </div>
+                    <div class="padding-lr5">
+                        <input class="uk-input uk-form-width-medium uk-form-small" type="number" disabled
+                            x-model="Stage.OSNR" style="font-size: 18px; color: red;">
+                    </div>
+                    <div class="padding-lr5">
+                        <input class="uk-input uk-form-width-medium uk-form-small" type="text" x-model="Stage.SiteName">
+                    </div>
+                    <div class="padding-lr5">
+                        <button class="uk-button uk-button-primary uk-button-small"
+                            x-on:click="DeleteStage(Stage)">Delete</button>
+                    </div>
+                </div>
+            </template>
+        </div>
+</body>
+<script>
+    function Data() {
+        return {
+            data: {
+                ProjectName: "",
+                CreateTime: formatDate(),
+                UserInput: {
+                    InputPower: -6.5,
+                    MarginOSNR: 3,
+                    MuxDemuxChannels: 48,
+                    MuxDemuxLoss: 5.5,
+                    FiberLoss: 0.25,
+                    Wavelength: 1560.606,
+                    ChannelFrequency: 192.10
+                },
+                FinalOSNR: 0,
+                SingleWavelebgthOutputPower: -12,
+                MultiWavelebgthOutputPower: 4.812,
+                TotalDistance: 0,
+                EffectiveBandwidth: 0.1,
+                EffectiveBandwidthFrequency: 0.0125,
+                PlanckConstant: 6.62607015,
+                Const58: -57.98,
+                CascadeNoise: 0,
+                LinearCascadeNoise: 0,
+                FilePath: "",
+                EDFATypes: [
+                    { type: "OBA", defaultGain: 15, defaultNF: 8 },
+                    { type: "OPA", defaultGain: 20, defaultNF: 6.5 },
+                    { type: "OLA", defaultGain: 25, defaultNF: 6.5 },
+                    { type: "RAMAN", defaultGain: 20, defaultNF: 5 }
+                ],
+                LossTypes: ["FIBER", "DE/MUX", "ROADM", "FOADM"],
+                Stages: [
+                    {
+                        EDFAType: "OBA",
+                        Gain: 15,
+                        LossType: "FIBER",
+                        SpanLoss: 22,
+                        Distance: 60,
+                        TempDistance: 60,
+                        NF: 8,
+                        Input: -12,
+                        Output: 0,
+                        G_linear: 0,
+                        L_linear: 0,
+                        Delta_GxL: 0,
+                        F_linear: 0,
+                        Fsys_linear: 0,
+                        Fsys: 0,
+                        OSNR: 0,
+                        SiteName: ""
+                    }
+                ]
+            },
+            Save() {
+                UIkit.notification.closeAll()
+                if (this.data.ProjectName.trim() === "") {
+                    UIkit.notification(
+                        `
+                        <hr>
+                        Please Type Project Name!
+                        `
+                        , { status: 'danger', timeout: 5000, pos: 'top-center' });
+                    return
+                }
+                downloadJson(`${this.data.ProjectName}_${this.data.CreateTime}.json`, this.data)
+            },
+            AddStage() {
+
+                let inputPower = 0
+                if (this.data.Stages.length === 0) {
+                    inputPower = this.data.SingleWavelebgthOutputPower
+                }
+                this.data.Stages.push({
+                    EDFAType: "OBA",
+                    Gain: 15,
+                    LossType: "FIBER",
+                    SpanLoss: 22,
+                    Distance: 60,
+                    TempDistance: 60,
+                    NF: 8,
+                    Input: inputPower,
+                    Output: 0,
+                    G_linear: 0,
+                    L_linear: 0,
+                    Delta_GxL: 0,
+                    F_linear: 0,
+                    Fsys_linear: 0,
+                    Fsys: 0,
+                    OSNR: 0,
+                    SiteName: ""
+                })
+            },
+            Upload() {
+                this.$refs.file.click()
+            },
+            async SelectFile(file) {
+                if (file[0] == undefined) {
+                    // UIkit.notification("<span uk-icon='icon: check'></span> Message");
+                    return
+                } else {
+                    let fileContent = await file[0].text()
+                    this.data = JSON.parse(fileContent)
+                    this.data.FilePath = file[0].name
+                    this.data.CreateTime = formatDate()
+                }
+            },
+            ShowOSNR() {
+                UIkit.notification.closeAll()
+                if (this.data.ProjectName.trim() === "") {
+                    UIkit.notification(
+                        `
+                        <hr>
+                        Please Type Project Name!
+                        `
+                        , { status: 'danger', timeout: 5000, pos: 'top-center' });
+                    return
+                }
+                UIkit.modal(document.getElementById("modal")).show();
+            },
+            DeleteStage(Stage) {
+                this.data.Stages.splice(this.data.Stages.indexOf(Stage), 1)
+                if (this.data.Stages.length === 0) {
+                    this.data.LinearCascadeNoise = 0
+                    this.data.CascadeNoise = 0
+                    this.data.FinalOSNR = 0
+                    this.data.TotalDistance = 0
+                }
+            },
+            ChangeInputPower() {
+                if (this.data.Stages[0]) {
+                    this.data.Stages[0].Input = this.data.SingleWavelebgthOutputPower
+                } else {
+                    this.addStage()
+                    this.data.Stages[0].Input = this.data.SingleWavelebgthOutputPower
+                }
+            },
+            ChangeMuxDemuxLoss() {
+                this.WatchUserInput(this.data.UserInput, this.data.UserInput)
+                this.ChangeInputPower()
+            },
+            ChangeWavelength() {
+                this.data.UserInput.ChannelFrequency = CalculateWavelength2ChannelFrequency(this.data.UserInput.Wavelength)
+                this.data.Const58 = Calculate58(this.data.PlanckConstant, this.data.UserInput.ChannelFrequency, this.data.EffectiveBandwidthFrequency)
+                this.WatchStages(this.data.Stages, this.data.Stages)
+            },
+            ChangeFrequency() {
+                this.data.UserInput.Wavelength = CalculateChannelFrequency2Wavelength(this.data.UserInput.ChannelFrequency)
+                this.data.Const58 = Calculate58(this.data.PlanckConstant, this.data.UserInput.ChannelFrequency, this.data.EffectiveBandwidthFrequency)
+                this.WatchStages(this.data.Stages, this.data.Stages)
+            },
+            ChangeFiberLoss() {
+                this.WatchStages(this.data.Stages, this.data.Stages)
+            },
+            ChangeMarginOSNR() {
+                this.WatchStages(this.data.Stages, this.data.Stages)
+            },
+            SelectEDFAType(EDFAType, Stage, element) {
+                UIkit.dropdown(element.parentNode.parentNode.parentNode).hide(0);
+                Stage.EDFAType = EDFAType.type;
+                Stage.Gain = EDFAType.defaultGain;
+                Stage.NF = EDFAType.defaultNF;
+            },
+            SelectLossType(LossType, Stage, element) {
+                Stage.LossType = LossType
+                UIkit.dropdown(element.parentNode.parentNode.parentNode).hide(0);
+                if (LossType !== "FIBER") {
+                    if (Stage.Distance !== 0) {
+                        Stage.TempDistance = Stage.Distance
+                    }
+                    Stage.Distance = 0
+                    return
+                }
+                Stage.Distance = Stage.TempDistance
+            },
+            IsFiberLoss(Stage, index) {
+                if (Stage.LossType !== 'FIBER') {
+                    return true
+                }
+                Stage.Distance = CalculateSpanLoss2Distance(Stage.SpanLoss, this.data.UserInput.FiberLoss);
+                return false
+            },
+            ChangeSpanLoss(Stage, index) {
+                if (Stage.LossType === "FIBER") {
+                    Stage.Distance = CalculateSpanLoss2Distance(Stage.SpanLoss, this.data.UserInput.FiberLoss);
+                }
+            },
+            ChangeDistance(Stage, index) {
+                if (Stage.LossType === "FIBER") {
+                    Stage.SpanLoss = CalculateDistance2SpanLoss(Stage.Distance, this.data.UserInput.FiberLoss);
+                }
+            },
+            // ChangeGain(Stage, index) {
+            //     Stage.Output = CalculateOutputPower(Stage.Input, Stage.Gain, Stage.SpanLoss)
+            // },
+            WatchUserInput(newUserInput, oldUserInput) {
+                this.data.SingleWavelebgthOutputPower = CalculateMUXSingleWavelengthOutputPower(newUserInput)
+                this.data.MultiWavelebgthOutputPower = CalculateMUXMultiWavelengthOutputPower(newUserInput)
+            },
+            WatchStages(newStages, oldStages) {
+                let finalStages = watchStages(newStages, oldStages, this.data.SingleWavelebgthOutputPower, this.data.Const58)
+                let lastOSNR = finalStages[finalStages.length - 1].OSNR
+                this.data.FinalOSNR = CalculateFinalOSNR(lastOSNR, this.data.UserInput.MarginOSNR)
+                this.data.TotalDistance = CalculateTotalDistance(finalStages)
+                this.data.LinearCascadeNoise = CalculateTotalLinearCascadeNoise(finalStages)
+                this.data.CascadeNoise = CalculateTotalCascadeNoise(finalStages)
+
+                let x = Object.keys(Array.from({ length: this.data.Stages.length })).map((val, i) => +i + 1)
+                x[x.length] = " Final"
+                let y = this.data.Stages.map(x => x.OSNR)
+                y[y.length] = this.data.FinalOSNR
+                echart(y, x, `${this.data.ProjectName}_${this.data.CreateTime}`)
+            },
+        }
+    }
+
+</script>
+
+</html>
