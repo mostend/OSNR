@@ -1,5 +1,5 @@
 # OSNR
-An OSNR calculation program
+An OSNR calculation program in WDM system
 
 ## Thanks wails!
 
