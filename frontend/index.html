@@ -257,7 +257,7 @@
                     </div>
                     <div class="padding-lr5">
                         <button class="uk-button uk-button-primary uk-button-small"
-                            x-on:click="DeleteStage(Stage)">Delete</button>
+                            x-on:click="DeleteStage(Stage,index)">Delete</button>
                     </div>
                 </div>
             </template>
@@ -384,7 +384,16 @@
                 }
                 UIkit.modal(document.getElementById("modal")).show();
             },
-            DeleteStage(Stage) {
+            DeleteStage(Stage, index) {
+                if (index === 0) {
+                    UIkit.notification(
+                        `
+                        <hr>
+                        Deleting Stage1 is not allowed!
+                        `
+                        , { status: 'danger', timeout: 5000, pos: 'top-center' });
+                    return
+                }
                 this.data.Stages.splice(this.data.Stages.indexOf(Stage), 1)
                 if (this.data.Stages.length === 0) {
                     this.data.LinearCascadeNoise = 0
