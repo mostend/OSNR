@@ -173,7 +173,9 @@ function stageCalculate(currentStage, currentIndex, newStages, InputPower, const
         totalF_linear = math.format(temp, { precision: 14 })
     }
 
-    let fsys_linear = math.evaluate(`${pervStage.Fsys_linear} + ((${currentStage.F_linear} - ${pervStage.L_linear})*${totalF_linear})`)
+
+
+    let fsys_linear = math.evaluate(`${pervStage.Fsys_linear} + ((${currentStage.F_linear} - ${pervStage.L_linear}) / ${totalF_linear})`)
     currentStage.Fsys_linear = math.format(fsys_linear, { precision: 14 })
 
     // // 计算Fsys
