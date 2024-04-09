@@ -264,6 +264,11 @@
         </div>
 </body>
 <script>
+    window.oncontextmenu = function (e) {
+        e.preventDefault();
+    }
+</script>
+<script>
     function Data() {
         return {
             data: {
@@ -386,6 +391,7 @@
             },
             DeleteStage(Stage, index) {
                 if (index === 0) {
+                    UIkit.notification.closeAll()
                     UIkit.notification(
                         `
                         <hr>
