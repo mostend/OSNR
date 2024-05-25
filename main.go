@@ -29,7 +29,6 @@ func main() {
 	app := application.New(application.Options{
 		Name:        "OSNR",
 		Description: "An OSNR calculation program",
-		Bind:        []any{},
 		Assets: application.AssetOptions{
 			Handler: application.AssetFileServerFS(assets),
 		},
